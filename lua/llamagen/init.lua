@@ -649,7 +649,10 @@ end, {
 })
 
 function Process_response(str, json_response)
-    if #str == 0 then return end
+    if #str == 0 then
+        return
+    end
+    local text
 
     if json_response then
         if str:sub(1, 6) == "data: " then
@@ -671,11 +674,11 @@ function Process_response(str, json_response)
                         content = globals.context_buffer,
                     })
                     globals.context_buffer = ""
-                    write_to_buffer({"\n", "---", "# Prompt: \n"})
+                    write_to_buffer({ "\n", "---", "# Prompt: \n" })
 
                     if globals.float_win and api.nvim_win_is_valid(globals.float_win) then
                         local line_count = api.nvim_buf_line_count(globals.result_buffer)
-                        api.nvim_win_set_cursor(globals.float_win, {line_count, 1})
+                        api.nvim_win_set_cursor(globals.float_win, { line_count, 1 })
                         vim.cmd("startinsert")
                     end
                 end
