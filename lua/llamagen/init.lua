@@ -25,7 +25,7 @@ end
 
 -- retry to check the llama.cpp model names
 local function check_server()
-    local check = fn.system("curl -s -N http://localhost:1123/v1/models")
+       local check = fn.system("curl -s -N http://" .. (M.host or "localhost") .. ":" .. (M.port or "8080") .. "/v1/models")
     if check and #check > 0 and not check:match("^%s*$") then
         local success, decoded = pcall(fn.json_decode, check)
         if success and decoded and decoded.data and decoded.data[1] then
@@ -53,7 +53,7 @@ local function create_lualine_component()
 
     -- Function to update status that can be called from GenLoadModel
     local function update_status()
-        local check = fn.system("curl -s -N http://localhost:1123/v1/models")
+   local check = fn.system("curl -s -N http://" .. (M.host or "localhost") .. ":" .. (M.port or "8080") .. "/v1/models")
 
         if not check or #check == 0 or check:match("^%s*$") then
             status = "off"
@@ -227,7 +227,9 @@ local function get_window_options(opts)
         zindex = 50,
     }
 
-    if vim.version().minor >= 10 then
+    local major = vim.version().major
+    local minor = vim.version().minor
+    if major > 0 or minor >= 10 then
         result.hide = opts.hidden
     end
 
@@ -248,10 +250,8 @@ local function write_to_buffer(lines)
     api.nvim_buf_set_text(globals.result_buffer, last_row - 1, last_col, last_row - 1, last_col, vim.split(text, "\n"))
 
     if globals.float_win and api.nvim_win_is_valid(globals.float_win) then
-        local cursor_pos = api.nvim_win_get_cursor(globals.float_win)
-        if cursor_pos[1] == last_row then
-            api.nvim_win_set_cursor(globals.float_win, { last_row + #lines - 1, 0 })
-        end
+        local new_line_count = api.nvim_buf_line_count(globals.result_buffer)
+        api.nvim_win_set_cursor(globals.float_win, { new_line_count, 0 })
     end
 end
 
@@ -709,7 +709,7 @@ api.nvim_create_user_command("GenLoadModel", function()
         if item ~= nil then
             print("Starting server with model: " .. item)
             fn.system(
-                "nohup llama-server -ngl 35 --keep -1 --port 1123 -m " .. models.paths[item] .. " > /dev/null 2>&1 &"
+                "nohup llama-server -ngl 35 --keep -1 --port " .. (M.port or "8080") .. " -m " .. models.paths[item] .. " > /dev/null 2>&1 &"
             )
             wait_for_server_ready(3000) -- 30 second timeout
         end
