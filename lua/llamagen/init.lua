@@ -664,7 +664,6 @@ function Process_response(str, json_response)
             local choice = result.choices[1]
             local delta = choice.delta
             if delta and delta.content then
-                local text = delta.content
                 globals.context = globals.context or {}
                 globals.context_buffer = (globals.context_buffer or "") .. text
 
