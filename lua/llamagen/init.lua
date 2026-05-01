@@ -663,9 +663,9 @@ function Process_response(str, json_response)
             local choice = result.choices[1]
             local delta = choice.delta
             if delta and delta.content then
-                local text = delta.content
+                local resp = delta.content
                 globals.context = globals.context or {}
-                globals.context_buffer = (globals.context_buffer or "") .. text
+                globals.context_buffer = (globals.context_buffer or "") .. resp
 
                 if delta.content == "" then
                     table.insert(globals.context, {
@@ -682,8 +682,8 @@ function Process_response(str, json_response)
                     end
                 end
 
-                globals.result_string = globals.result_string .. text
-                write_to_buffer(vim.split(text, "\n"))
+                globals.result_string = globals.result_string .. resp
+                write_to_buffer(vim.split(resp, "\n"))
             end
         end
     end
