@@ -652,7 +652,6 @@ function Process_response(str, json_response)
     if #str == 0 then
         return
     end
-    local text
 
     if json_response then
         if str:sub(1, 6) == "data: " then
